@@ -8,17 +8,18 @@
 #include "../qda.h"
 #include "../hero.h"
 
+uint32_t *framebuf = NULL;
+uint32_t fb_w, fb_h;
 uint8_t drawing_phase = 0;
 extern int in_game;
 
 void set_pixel(sw_texture* texture, int x, int y, unsigned int color){
-	uint32_t* data = (uint32_t*)texture->data;
+	if ((x < 0) || (y < 0) || (x >= texture->w) || (y >= texture->h)) return;
+	uint32_t *data = (uint32_t*)texture->data;
 	data[x+y*texture->w] = color;
 }
 
 void draw_rectangle(int x, int y, uint32_t w, uint32_t h, unsigned int color){
-	uint32_t fb_w, fb_h;
-	uint32_t *framebuf = (uint32_t*)gfxGetFramebuffer((uint32_t*)&fb_w, (uint32_t*)&fb_h);
 	uint32_t *orig = framebuf;
 	if (x + w > fb_w) w = fb_w - x;
 	if (y + h > fb_h) h = fb_h - y;
@@ -40,14 +41,12 @@ void draw_rectangle(int x, int y, uint32_t w, uint32_t h, unsigned int color){
 }
 
 void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h){
-	uint32_t fb_w, fb_h;
 	uint32_t *tex_data = (uint32_t*)texture->data;
-	uint32_t *framebuf = (uint32_t*)gfxGetFramebuffer((uint32_t*)&fb_w, (uint32_t*)&fb_h);
 	uint32_t *orig = framebuf;
 	uint32_t w = tex_w - tex_x;
 	uint32_t h = tex_h - tex_y;
-	if (x + w > fb_w) w = fb_w - x;
-	if (y + h > fb_h) h = fb_h - y;
+	if ((x + w) > fb_w) w = fb_w - x;
+	if ((y + h) > fb_h) h = fb_h - y;
 	if (x < 0){
 		w += x;
 		tex_x -= x;
@@ -62,7 +61,11 @@ void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex
 	for (i=0;i<h;i++){
 		framebuf = orig + x + (y + i) * fb_w;
 		for (j=0;j<w;j++){
-			framebuf[j] = tex_data[tex_x + j + (tex_y + i) * tex_w];
+			if (&framebuf[j] > &orig[fb_w*fb_h]) break;
+			if (&framebuf[j] < orig) continue;
+			uint32_t tex_offs = tex_x + j + (tex_y + i) * tex_w;
+			if (tex_offs > tex_w * tex_h) continue;
+			framebuf[j] = tex_data[tex_offs];
 		}
 	}
 }
@@ -85,6 +88,7 @@ void PHL_SwapBorder()
 void PHL_StartDrawing()
 {
 	if (drawing_phase) return;
+	framebuf = (uint32_t*)gfxGetFramebuffer(&fb_w, &fb_h);
 	drawing_phase = 1;
 }
 
@@ -192,7 +196,7 @@ sw_texture* PHL_LoadBMP(int index)
 				int py = QDAFile[1078 + pix] % 16;
 				
 				if (palette[px][py] == alphaKey) {
-					set_pixel(result, w - dx, h - dy - 1, RGBA8(0, 0, 0, 0));
+					set_pixel(result, w - dx, h - dy - 1, PHL_NewRGB(0, 0, 0));
 				}else{
 					set_pixel(result, w - dx, h - dy - 1, palette[px][py]);
 				}			
@@ -226,7 +230,7 @@ void PHL_DrawSurface(int16_t x, int16_t y, sw_texture* surf)
 		}
 	}
 	
-	draw_texture_scale_3x(surf, 160 + x, 32 + y);
+	draw_texture_scale_3x(surf, x, y);
 }
 
 void PHL_DrawSurfacePart(int16_t x, int16_t y, int16_t cropx, int16_t cropy, int16_t cropw, int16_t croph, sw_texture* surf)
@@ -244,7 +248,7 @@ void PHL_DrawSurfacePart(int16_t x, int16_t y, int16_t cropx, int16_t cropy, int
 			}
 		}
 		
-		draw_texture_part_scale_3x(surf,120 + x, y, cropx/2, cropy/2, cropw/2, croph/2);
+		draw_texture_part_scale_3x(surf, 120+x, 32+y, cropx/2, cropy/2, cropw/2, croph/2);
 
 	}
 }
