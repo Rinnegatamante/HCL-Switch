@@ -154,7 +154,7 @@ void game()
 			{
 				char fullPath[128];
 				#ifndef _PSP2
-				strcpy(fullPath, "");
+				strcpy(fullPath, "./");
 				#endif
 				#ifdef _3DS
 					strcat(fullPath, "sdmc:/3ds/appdata/HydraCastleLabyrinth/");
@@ -164,7 +164,7 @@ void game()
 					else sceIoRemove("ux0:data/HCL/data/save.tmp");
 				#endif
 				#ifndef _PSP2
-				strcat(fullPath, "./data/save.tmp");
+				strcat(fullPath, "data/save.tmp");
 				remove(fullPath);
 				#endif
 			}

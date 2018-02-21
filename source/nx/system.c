@@ -9,7 +9,7 @@ int quitGame = 0;
 
 int PHL_MainLoop(){	
 	if (quitGame == 1) return 0;
-	return 1;
+	return appletMainLoop();
 }
 
 void PHL_ConsoleInit(){

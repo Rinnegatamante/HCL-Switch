@@ -30,10 +30,9 @@ void draw_rectangle(int x, int y, uint32_t w, uint32_t h, unsigned int color){
 		h += y;
 		y = 0;
 	}
-	framebuf += (x + y * fb_w);
 	int i, j;
 	for (i=0;i<h;i++){
-		framebuf = orig + x + i * fb_w;
+		framebuf = orig + x + (y + i) * fb_w;
 		for (j=0;j<w;j++){
 			framebuf[j] = color;
 		}
@@ -42,6 +41,7 @@ void draw_rectangle(int x, int y, uint32_t w, uint32_t h, unsigned int color){
 
 void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h){
 	uint32_t fb_w, fb_h;
+	uint32_t *tex_data = (uint32_t*)texture->data;
 	uint32_t *framebuf = (uint32_t*)gfxGetFramebuffer((uint32_t*)&fb_w, (uint32_t*)&fb_h);
 	uint32_t *orig = framebuf;
 	uint32_t w = tex_w - tex_x;
@@ -58,12 +58,11 @@ void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex
 		tex_y -= y;
 		y = 0;
 	}
-	framebuf += (x + y * fb_w);
 	int i, j;
 	for (i=0;i<h;i++){
-		framebuf = orig + x + i * fb_w;
+		framebuf = orig + x + (y + i) * fb_w;
 		for (j=0;j<w;j++){
-			framebuf[j] = texture->data[tex_x + j + (tex_y + i) * tex_w];
+			framebuf[j] = tex_data[tex_x + j + (tex_y + i) * tex_w];
 		}
 	}
 }

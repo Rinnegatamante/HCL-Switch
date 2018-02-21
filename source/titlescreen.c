@@ -12,7 +12,6 @@ int titleScreenStep();
 void titleScreenDraw();
 
 void pretitleScreen(){
-	char loop = 1;	
 	while (PHL_MainLoop())
 	{
 		//Get input
