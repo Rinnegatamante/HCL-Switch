@@ -33,15 +33,15 @@ void PHL_ResetDrawbuffer();
 uint32_t PHL_NewRGB(uint8_t r, uint8_t g, uint8_t b);
 void PHL_SetColorKey(sw_texture* surf, uint8_t r, uint8_t g, uint8_t b);
 
-sw_texture* PHL_NewSurface(uint16_t w, uint16_t h);
+sw_texture* PHL_NewSurface(uint32_t w, uint32_t h);
 void PHL_FreeSurface(sw_texture* surf);
 
 sw_texture* PHL_LoadBMP(int index);
 
-void PHL_DrawRect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint32_t col);
+void PHL_DrawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t col);
 
-void PHL_DrawSurface(int16_t x, int16_t y, sw_texture* surf);
-void PHL_DrawSurfacePart(int16_t x, int16_t y, int16_t cropx, int16_t cropy, int16_t cropw, int16_t croph, sw_texture*);
+void PHL_DrawSurface(int32_t x, int32_t y, sw_texture* surf);
+void PHL_DrawSurfacePart(int32_t x, int32_t y, int32_t cropx, int32_t cropy, int32_t cropw, int32_t croph, sw_texture*);
 
 void PHL_DrawBackground(PHL_Background back, PHL_Background fore);
 void PHL_UpdateBackground(PHL_Background back, PHL_Background fore);

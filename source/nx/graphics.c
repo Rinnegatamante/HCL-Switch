@@ -21,6 +21,7 @@ void set_pixel(sw_texture* texture, int x, int y, unsigned int color){
 
 void draw_rectangle(int x, int y, uint32_t w, uint32_t h, unsigned int color){
 	uint32_t *orig = framebuf;
+	uint32_t *fb = orig;
 	if (x + w > fb_w) w = fb_w - x;
 	if (y + h > fb_h) h = fb_h - y;
 	if (x < 0){
@@ -33,16 +34,18 @@ void draw_rectangle(int x, int y, uint32_t w, uint32_t h, unsigned int color){
 	}
 	int i, j;
 	for (i=0;i<h;i++){
-		framebuf = orig + x + (y + i) * fb_w;
+		fb = orig + x + (y + i) * fb_w;
 		for (j=0;j<w;j++){
-			framebuf[j] = color;
+			fb[j] = color;
 		}
 	}
 }
 
 void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h){
+	return;
 	uint32_t *tex_data = (uint32_t*)texture->data;
 	uint32_t *orig = framebuf;
+	uint32_t *fb = orig;
 	uint32_t w = tex_w - tex_x;
 	uint32_t h = tex_h - tex_y;
 	if ((x + w) > fb_w) w = fb_w - x;
@@ -59,13 +62,13 @@ void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex
 	}
 	int i, j;
 	for (i=0;i<h;i++){
-		framebuf = orig + x + (y + i) * fb_w;
+		fb = orig + x + (y + i) * fb_w;
 		for (j=0;j<w;j++){
-			if (&framebuf[j] > &orig[fb_w*fb_h]) break;
-			if (&framebuf[j] < orig) continue;
+			if (&fb[j] > &orig[fb_w*fb_h]) break;
+			if (&fb[j] < orig) continue;
 			uint32_t tex_offs = tex_x + j + (tex_y + i) * tex_w;
 			if (tex_offs > tex_w * tex_h) continue;
-			framebuf[j] = tex_data[tex_offs];
+			fb[j] = tex_data[tex_offs];
 		}
 	}
 }
@@ -132,7 +135,7 @@ void PHL_SetColorKey(sw_texture* surf, uint8_t r, uint8_t g, uint8_t b)
 
 }
 
-sw_texture *PHL_NewSurface(uint16_t w, uint16_t h)
+sw_texture *PHL_NewSurface(uint32_t w, uint32_t h)
 {	
 	sw_texture *r = (sw_texture*)malloc(sizeof(sw_texture));
 	r->data = (uint8_t*)malloc(w*h*4);
@@ -210,13 +213,13 @@ sw_texture* PHL_LoadBMP(int index)
 	return result;
 }
 
-void PHL_DrawRect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint32_t color)
+void PHL_DrawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t color)
 {	
 	if (!drawing_phase) return;	
 	draw_rectangle(120 + x, y, w, h, RGBA8((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF));
 }
 
-void PHL_DrawSurface(int16_t x, int16_t y, sw_texture* surf)
+void PHL_DrawSurface(int32_t x, int32_t y, sw_texture* surf)
 {
 	if (!drawing_phase) return;
 	
@@ -233,7 +236,7 @@ void PHL_DrawSurface(int16_t x, int16_t y, sw_texture* surf)
 	draw_texture_scale_3x(surf, x, y);
 }
 
-void PHL_DrawSurfacePart(int16_t x, int16_t y, int16_t cropx, int16_t cropy, int16_t cropw, int16_t croph, sw_texture* surf)
+void PHL_DrawSurfacePart(int32_t x, int32_t y, int32_t cropx, int32_t cropy, int32_t cropw, int32_t croph, sw_texture* surf)
 {	
 	if (!drawing_phase) return;
 	if (surf != NULL)
