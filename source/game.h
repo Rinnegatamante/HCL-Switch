@@ -80,7 +80,7 @@ int roomSecret;
 int collisionTiles[16][12];
 
 //Playtime in frames. At 60 frames per second can hold ~828 1/2 days worth of playtime if my math isn't shit
-unsigned long playTime;
+uint32_t playTime;
 
 //Inventory
 unsigned char hasWeapon[5];

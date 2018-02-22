@@ -1531,7 +1531,7 @@ void loadSave(char* fname)
 	
 	if ((f = fopen(fullPath, "rb"))) {
 		//Reminder: read order matters
-		unsigned long loadTemp = 0;
+		uint32_t loadTemp = 0;
 		//Hero HP
 		fread(&loadTemp, 4, 1, f);
 		herohp = loadTemp;
