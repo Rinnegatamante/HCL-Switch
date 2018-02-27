@@ -41,13 +41,15 @@ void draw_rectangle(int x, int y, uint32_t w, uint32_t h, unsigned int color){
 	}
 }
 
-void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h){
-	return;
-	uint32_t *tex_data = (uint32_t*)texture->data;
+void draw_texture_part_scale_2x(const sw_texture *texture, int x, int y, int tex_x, int tex_y, uint32_t tex_w, uint32_t tex_h){
+	if ((x > fb_w) || (y > fb_h) || ((x + tex_w) < 0) || ((y + tex_h) < 0)) return;
+	uint32_t *tex_orig = (uint32_t*)texture->data;
 	uint32_t *orig = framebuf;
-	uint32_t *fb = orig;
-	uint32_t w = tex_w - tex_x;
-	uint32_t h = tex_h - tex_y;
+	uint32_t *fb_low;
+	uint32_t *fb_high;
+	uint32_t *tex_data;
+	uint32_t w = tex_w;
+	uint32_t h = tex_h;
 	if ((x + w) > fb_w) w = fb_w - x;
 	if ((y + h) > fb_h) h = fb_h - y;
 	if (x < 0){
@@ -60,21 +62,29 @@ void draw_texture_part_scale_3x(const sw_texture *texture, int x, int y, int tex
 		tex_y -= y;
 		y = 0;
 	}
-	int i, j;
+	int i, j, i2=0, j2=0;
 	for (i=0;i<h;i++){
-		fb = orig + x + (y + i) * fb_w;
+		fb_low = &orig[x + (y + i2) * fb_w];
+		fb_high = &orig[x + (y + i2 + 1) * fb_w];
+		tex_data = &tex_orig[tex_x + (tex_y + i) * texture->w];
 		for (j=0;j<w;j++){
-			if (&fb[j] > &orig[fb_w*fb_h]) break;
-			if (&fb[j] < orig) continue;
-			uint32_t tex_offs = tex_x + j + (tex_y + i) * tex_w;
-			if (tex_offs > tex_w * tex_h) continue;
-			fb[j] = tex_data[tex_offs];
+			if ((tex_data[j] >> 24) == 0x0){
+				j2 += 2;
+				continue;
+			}
+			fb_low[j2] = tex_data[j];
+			fb_low[j2+1] = tex_data[j];
+			fb_high[j2] = tex_data[j];
+			fb_high[j2+1] = tex_data[j];
+			j2 += 2;
 		}
+		j2 = 0;
+		i2 += 2;
 	}
 }
 
-void draw_texture_scale_3x(const sw_texture *texture, int x, int y){
-	draw_texture_part_scale_3x(texture, x, y, 0, 0, texture->w, texture->h);
+void draw_texture_scale_2x(const sw_texture *texture, int x, int y){
+	draw_texture_part_scale_2x(texture, x, y, 0, 0, texture->w, texture->h);
 }
 
 //One time graphics setup
@@ -98,6 +108,11 @@ void PHL_StartDrawing()
 void PHL_EndDrawing()
 {	
 	if (!drawing_phase) return;
+	
+	// TODO: Change this with borders like on HCL-Vita
+	draw_rectangle(0, 120, 279, 480, 0x000000FF);
+	draw_rectangle(920, 120, 200, 480, 0x000000FF);
+	
 	gfxFlushBuffers();
 	gfxSwapBuffers();
 	gfxWaitForVsync();
@@ -128,6 +143,11 @@ void PHL_ResetDrawbuffer()
 uint32_t PHL_NewRGB(uint8_t r, uint8_t g, uint8_t b)
 {
 	return (r | (g << 8) | (b << 16) | (0xFF << 24));
+}
+
+uint32_t PHL_NewRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+	return (r | (g << 8) | (b << 16) | (a << 24));
 }
 
 void PHL_SetColorKey(sw_texture* surf, uint8_t r, uint8_t g, uint8_t b)
@@ -199,7 +219,7 @@ sw_texture* PHL_LoadBMP(int index)
 				int py = QDAFile[1078 + pix] % 16;
 				
 				if (palette[px][py] == alphaKey) {
-					set_pixel(result, w - dx, h - dy - 1, PHL_NewRGB(0, 0, 0));
+					set_pixel(result, w - dx, h - dy - 1, PHL_NewRGBA(0, 0, 0, 0));
 				}else{
 					set_pixel(result, w - dx, h - dy - 1, palette[px][py]);
 				}			
@@ -216,7 +236,7 @@ sw_texture* PHL_LoadBMP(int index)
 void PHL_DrawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t color)
 {	
 	if (!drawing_phase) return;	
-	draw_rectangle(120 + x, y, w, h, RGBA8((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF));
+	draw_rectangle(280 + x, 120 + y, w, h, RGBA8((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF));
 }
 
 void PHL_DrawSurface(int32_t x, int32_t y, sw_texture* surf)
@@ -233,7 +253,7 @@ void PHL_DrawSurface(int32_t x, int32_t y, sw_texture* surf)
 		}
 	}
 	
-	draw_texture_scale_3x(surf, x, y);
+	draw_texture_scale_2x(surf, 280+x, 120+y);
 }
 
 void PHL_DrawSurfacePart(int32_t x, int32_t y, int32_t cropx, int32_t cropy, int32_t cropw, int32_t croph, sw_texture* surf)
@@ -251,7 +271,7 @@ void PHL_DrawSurfacePart(int32_t x, int32_t y, int32_t cropx, int32_t cropy, int
 			}
 		}
 		
-		draw_texture_part_scale_3x(surf, 120+x, 32+y, cropx/2, cropy/2, cropw/2, croph/2);
+		draw_texture_part_scale_2x(surf, 280+x, 120+y, cropx/2, cropy/2, cropw/2, croph/2);
 
 	}
 }
