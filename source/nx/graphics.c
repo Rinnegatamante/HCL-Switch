@@ -110,8 +110,8 @@ void PHL_EndDrawing()
 	if (!drawing_phase) return;
 	
 	// TODO: Change this with borders like on HCL-Vita
-	draw_rectangle(0, 120, 279, 480, 0x000000FF);
-	draw_rectangle(920, 120, 200, 480, 0x000000FF);
+	draw_rectangle(0, 120, 280, 480, 0xFF000000);
+	draw_rectangle(920, 120, 200, 480, 0xFF000000);
 	
 	gfxFlushBuffers();
 	gfxSwapBuffers();
