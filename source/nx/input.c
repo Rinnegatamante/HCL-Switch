@@ -7,7 +7,7 @@ int enterButton = 0;
 void PHL_ScanInput()
 {	
 	hidScanInput();
-	uint64_t kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+	uint64_t kDown = hidKeysHeld(CONTROLLER_P1_AUTO);
 		
 	updateKey(&btnUp, kDown & KEY_DUP);
 	updateKey(&btnDown, kDown & KEY_DDOWN);
