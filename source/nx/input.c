@@ -17,9 +17,9 @@ void PHL_ScanInput()
 	updateKey(&btnStart, kDown & KEY_PLUS);
 	updateKey(&btnSelect, kDown & KEY_MINUS);
 	
-	updateKey(&btnFaceRight, kDown & KEY_B);
+	updateKey(&btnFaceRight, kDown & KEY_Y);
 	updateKey(&btnFaceDown, kDown & KEY_A);
-	updateKey(&btnFaceLeft, kDown & KEY_Y);
+	updateKey(&btnFaceLeft, kDown & KEY_B);
 	
 	updateKey(&btnL, kDown & KEY_L);
 	updateKey(&btnR, kDown & KEY_R);
