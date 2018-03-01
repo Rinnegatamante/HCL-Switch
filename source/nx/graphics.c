@@ -110,8 +110,10 @@ void PHL_EndDrawing()
 	if (!drawing_phase) return;
 	
 	// TODO: Change this with borders like on HCL-Vita
-	draw_rectangle(0, 120, 280, 480, 0xFF000000);
-	draw_rectangle(920, 120, 200, 480, 0xFF000000);
+	draw_rectangle(180, 120, 140, 480, 0xFF000000);
+	draw_rectangle(960, 120, 140, 480, 0xFF000000);
+	draw_rectangle(320, 0, 640, 120, 0xFF000000);
+	draw_rectangle(320, 600, 640, 100, 0xFF000000);
 	
 	gfxFlushBuffers();
 	gfxSwapBuffers();
@@ -236,7 +238,7 @@ sw_texture* PHL_LoadBMP(int index)
 void PHL_DrawRect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t color)
 {	
 	if (!drawing_phase) return;	
-	draw_rectangle(280 + x, 120 + y, w, h, RGBA8((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF));
+	draw_rectangle(320 + x, 120 + y, w, h, RGBA8((color) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF, (color >> 24) & 0xFF));
 }
 
 void PHL_DrawSurface(int32_t x, int32_t y, sw_texture* surf)
@@ -253,7 +255,7 @@ void PHL_DrawSurface(int32_t x, int32_t y, sw_texture* surf)
 		}
 	}
 	
-	draw_texture_scale_2x(surf, 280+x, 120+y);
+	draw_texture_scale_2x(surf, 320+x, 120+y);
 }
 
 void PHL_DrawSurfacePart(int32_t x, int32_t y, int32_t cropx, int32_t cropy, int32_t cropw, int32_t croph, sw_texture* surf)
@@ -271,7 +273,7 @@ void PHL_DrawSurfacePart(int32_t x, int32_t y, int32_t cropx, int32_t cropy, int
 			}
 		}
 		
-		draw_texture_part_scale_2x(surf, 280+x, 120+y, cropx/2, cropy/2, cropw/2, croph/2);
+		draw_texture_part_scale_2x(surf, 320+x, 120+y, cropx/2, cropy/2, cropw/2, croph/2);
 
 	}
 }
