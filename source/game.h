@@ -42,7 +42,7 @@
 #include "platform.h"
 
 #define TITLE 0
-#define	GAME 1
+#define GAME 1
 #define INVENTORY 2
 #define OPTIONS 3
 #define SAVING 4

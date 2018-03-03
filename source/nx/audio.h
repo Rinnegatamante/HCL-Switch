@@ -9,18 +9,9 @@
 // Music block struct
 typedef struct DecodedMusic
 {
-	uint8_t* audiobuf;
-	uint8_t* audiobuf2;
-	uint8_t* cur_audiobuf;
-	FILE* handle;
-	volatile int isPlaying;
 	int loop;
-	volatile int pauseTrigger;
-	volatile int closeTrigger;
-	volatile int audioThread;
 	char filepath[256];
-	int tempBlock;
-	int used;
+	int chn;
 } DecodedMusic;
 
 typedef DecodedMusic PHL_Sound;

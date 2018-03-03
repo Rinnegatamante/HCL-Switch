@@ -37,24 +37,26 @@ INCLUDES	:=	include
 EXEFS_SRC	:=	exefs_src
 GIT_VERSION := $(shell git describe --abbrev=6 --dirty --always --tags)
 ICON		:= icon.jpg
+APP_AUTHOR := Rinnegatamante
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE
 
-CFLAGS	:= -g -Wl,-q -O2 \
+CFLAGS	:= -g -Wall -O2 \
 			-fsigned-char -ffast-math -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -DSWITCH -DREF_HARD_LINKED -DGAME_HARD_LINKED
+CFLAGS	+=	$(INCLUDE) -DSWITCH -DHAVE_LIBSAMPLERATE -DHAVE_MPG123 \
+	-DUSE_AUDIO_RESAMPLER -DWANT_FASTWAV
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lnx -lc -lm
+LIBS	:= -lnx -lc -lm -lsamplerate -lmpg123
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
